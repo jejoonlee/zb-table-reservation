@@ -4,9 +4,15 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -16,7 +22,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity(name="member")
 @EntityListeners(value = AuditingEntityListener.class)
-public class Member implements MemberCode {
+public class Member implements UserDetails {
     @Id
     @Column(name ="USERNAME", unique = true)
     private String username;
@@ -33,9 +39,9 @@ public class Member implements MemberCode {
     @Column(name ="NAME", nullable = false, length = 50)
     private String name;
 
-    // 점장 또는 고객
-    @Column(name ="OWNER_OR_CUSTOMER", nullable = false, length = 10)
-    private String ownerOrCustomer;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "OWNER_OR_CUSTOMER", nullable = false, length = 10)
+    private List<String> ownerOrCustomer;
 
     @Column(name ="REGISTERED_AT", nullable = false)
     @CreatedDate
@@ -44,4 +50,31 @@ public class Member implements MemberCode {
     @Column(name = "UPDATED_AT", nullable = true)
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return ownerOrCustomer.stream()
+                .map(SimpleGrantedAuthority::new) // 스프링 security에서 제공하는 role 관련된 authority를 사용
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 }

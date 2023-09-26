@@ -1,7 +1,8 @@
 package com.zerobase.tablereservation.member.domain;
 
-public interface MemberCode {
+public enum MemberCode {
 
-    String OWNER = "owner"; // 매장 점주
-    String CUSTOMER = "customer"; // 매장 이용객
+    ROLE_ADMIN,
+    ROLE_STORE_OWNER,
+    ROLE_STORE_USER;
 }

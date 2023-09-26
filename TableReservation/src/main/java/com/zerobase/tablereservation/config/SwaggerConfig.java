@@ -1,4 +1,4 @@
-package com.zerobase.tablereservation.member.config;
+package com.zerobase.tablereservation.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

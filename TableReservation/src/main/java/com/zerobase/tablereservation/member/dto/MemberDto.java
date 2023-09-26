@@ -4,6 +4,7 @@ import com.zerobase.tablereservation.member.domain.Member;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class MemberDto {
     private String phoneNumber;
     private String email;
     private String name;
-    private String ownerOrCustomer;
+    private List<String> ownerOrCustomer;
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
 

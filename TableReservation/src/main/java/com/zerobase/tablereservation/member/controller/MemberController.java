@@ -1,7 +1,10 @@
 package com.zerobase.tablereservation.member.controller;
 
+import com.zerobase.tablereservation.member.dto.Login;
 import com.zerobase.tablereservation.member.dto.MemberRegister;
+import com.zerobase.tablereservation.member.security.TokenProvider;
 import com.zerobase.tablereservation.member.service.impl.MemberServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,9 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/member")
+@RequiredArgsConstructor
 public class MemberController {
 
-    MemberServiceImpl memberServiceImpl;
+    private final MemberServiceImpl memberServiceImpl;
+
+    private final TokenProvider tokenProvider;
 
     // 회원가입
     @PostMapping("/register")
@@ -22,6 +28,15 @@ public class MemberController {
         MemberRegister.Response memberRegisterResponse = memberServiceImpl.register(request);
 
         return memberRegisterResponse;
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestBody Login.Request request) {
+        Login.Response response = memberServiceImpl.login(request);
+
+        String token = tokenProvider.generateToken(response.getUsername(), response.getOwnerOrCustomer());
+
+        return token;
     }
 
 }

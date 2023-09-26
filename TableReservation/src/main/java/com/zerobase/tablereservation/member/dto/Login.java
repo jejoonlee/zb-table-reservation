@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.util.List;
 
-public class MemberRegister {
+public class Login {
 
     @Getter
     @Setter
@@ -15,14 +15,6 @@ public class MemberRegister {
         private String username;
         @NotNull
         private String password;
-        @NotNull
-        private String phoneNumber;
-        @NotNull
-        private String email;
-        @NotNull
-        private String name;
-        @NotNull
-        private String ownerOrCustomer;
     }
 
     @Getter
@@ -34,14 +26,12 @@ public class MemberRegister {
         private String username;
         private List<String> ownerOrCustomer;
         private String name;
-        private String email;
 
-        public static Response from(MemberDto memberDto) {
+        public static Login.Response from(MemberDto memberDto) {
             return Response.builder()
                     .username(memberDto.getUsername())
                     .ownerOrCustomer(memberDto.getOwnerOrCustomer())
                     .name(memberDto.getName())
-                    .email(memberDto.getEmail())
                     .build();
         }
     }
