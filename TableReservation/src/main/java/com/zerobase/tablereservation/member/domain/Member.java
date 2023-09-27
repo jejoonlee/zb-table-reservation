@@ -40,8 +40,8 @@ public class Member implements UserDetails {
     private String name;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "OWNER_OR_CUSTOMER", nullable = false, length = 10)
-    private List<String> ownerOrCustomer;
+    @Column(name = "ROLE", length = 20)
+    private List<String> role;
 
     @Column(name ="REGISTERED_AT", nullable = false)
     @CreatedDate
@@ -53,7 +53,7 @@ public class Member implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return ownerOrCustomer.stream()
+        return role.stream()
                 .map(SimpleGrantedAuthority::new) // 스프링 security에서 제공하는 role 관련된 authority를 사용
                 .collect(Collectors.toList());
     }

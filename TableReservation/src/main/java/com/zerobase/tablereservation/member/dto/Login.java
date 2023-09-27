@@ -30,7 +30,7 @@ public class Login {
         public static Login.Response from(MemberDto memberDto) {
             return Response.builder()
                     .username(memberDto.getUsername())
-                    .ownerOrCustomer(memberDto.getOwnerOrCustomer())
+                    .ownerOrCustomer(memberDto.getRole())
                     .name(memberDto.getName())
                     .build();
         }

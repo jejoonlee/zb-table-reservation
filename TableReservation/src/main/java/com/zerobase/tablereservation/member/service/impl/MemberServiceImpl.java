@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +24,8 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     private String ownerOrCustomer(String result) {
-        if (result.equals("0")) return "STORE_OWNER";
-        if (result.equals("1")) return "STORE_USER";
+        if (result.equals("0")) return "ROLE_STORE_OWNER";
+        if (result.equals("1")) return "ROLE_STORE_USER";
 
         throw new RuntimeException("0 또는 1을 입력해주세요.\n0 = 매장 운영자\n1 = 매장 이용자");
     }
@@ -36,25 +35,19 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
 
         boolean memberExist = memberRepository.existsByUsername(request.getUsername());
 
+
         if (memberExist) {
             throw new RuntimeException("유저가 이미 존재합니다");
         }
 
-        // 매장 운영자인지 또는 매장 이용자인지 확인
-        String ownerCustomer = ownerOrCustomer(request.getOwnerOrCustomer());
-
         List<String> role = new ArrayList<>();
-        role.add(ownerCustomer);
+        role.add(ownerOrCustomer(request.getRole()));
 
-        Member member = Member.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .phoneNumber(request.getPhoneNumber())
-                .email(request.getEmail())
-                .name(request.getName())
-                .ownerOrCustomer(role)
-                .registeredAt(LocalDateTime.now())
-                .build();
+        // 비밀번호 인코딩하기
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        Member member = request.toEntity();
+        member.setRole(role);
 
         memberRepository.save(member);
 

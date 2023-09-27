@@ -1,6 +1,6 @@
 package com.zerobase.tablereservation.member.domain;
 
-public enum MemberCode {
+public enum MemberRole {
 
     ROLE_ADMIN,
     ROLE_STORE_OWNER,

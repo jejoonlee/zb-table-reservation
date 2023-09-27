@@ -17,7 +17,7 @@ public class MemberDto {
     private String phoneNumber;
     private String email;
     private String name;
-    private List<String> ownerOrCustomer;
+    private List<String> role;
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
 
@@ -28,7 +28,7 @@ public class MemberDto {
                 .phoneNumber(member.getPhoneNumber())
                 .email(member.getEmail())
                 .name(member.getName())
-                .ownerOrCustomer(member.getOwnerOrCustomer())
+                .role(member.getRole())
                 .registeredAt(member.getRegisteredAt())
                 .updatedAt(member.getUpdatedAt())
                 .build();
