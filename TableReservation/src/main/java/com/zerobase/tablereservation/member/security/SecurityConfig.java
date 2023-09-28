@@ -30,6 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/**/register", "/**/login").permitAll() // 토큰 없이 접근 가능
                 .and()
                     .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
     }
 
     @Override

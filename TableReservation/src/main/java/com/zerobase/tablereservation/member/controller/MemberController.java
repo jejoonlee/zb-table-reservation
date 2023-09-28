@@ -36,7 +36,7 @@ public class MemberController {
 
         String token = tokenProvider.generateToken(response.getUsername(), response.getOwnerOrCustomer());
 
-        return token;
+        return "토큰이 생성이 되었습니다 : " + token;
     }
 
 }
