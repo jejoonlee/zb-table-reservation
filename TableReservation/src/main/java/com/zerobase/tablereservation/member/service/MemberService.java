@@ -5,6 +5,8 @@ import com.zerobase.tablereservation.member.dto.Login;
 import com.zerobase.tablereservation.member.dto.MemberRegister;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.List;
+
 public interface MemberService extends UserDetailsService {
 
     MemberRegister.Response register(MemberRegister.Request request);

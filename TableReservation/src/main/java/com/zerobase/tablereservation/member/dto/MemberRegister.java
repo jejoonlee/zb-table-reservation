@@ -1,7 +1,7 @@
 package com.zerobase.tablereservation.member.dto;
 
 import com.sun.istack.NotNull;
-import com.zerobase.tablereservation.member.domain.Member;
+import com.zerobase.tablereservation.member.domain.MemberEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -26,8 +26,8 @@ public class MemberRegister {
         @NotNull
         private String role; // 문자열로 받고, service에서 리스트에 넣기
 
-        public Member toEntity() {
-            return Member.builder()
+        public MemberEntity toEntity() {
+            return MemberEntity.builder()
                     .username(this.username)
                     .password(this.password)
                     .phoneNumber(this.phoneNumber)

@@ -1,6 +1,6 @@
 package com.zerobase.tablereservation.member.dto;
 
-import com.zerobase.tablereservation.member.domain.Member;
+import com.zerobase.tablereservation.member.domain.MemberEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,16 +21,16 @@ public class MemberDto {
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
 
-    public static MemberDto fromEntity(Member member) {
+    public static MemberDto fromEntity(MemberEntity memberEntity) {
         return MemberDto.builder()
-                .username(member.getUsername())
-                .password(member.getPassword())
-                .phoneNumber(member.getPhoneNumber())
-                .email(member.getEmail())
-                .name(member.getName())
-                .role(member.getRole())
-                .registeredAt(member.getRegisteredAt())
-                .updatedAt(member.getUpdatedAt())
+                .username(memberEntity.getUsername())
+                .password(memberEntity.getPassword())
+                .phoneNumber(memberEntity.getPhoneNumber())
+                .email(memberEntity.getEmail())
+                .name(memberEntity.getName())
+                .role(memberEntity.getRole())
+                .registeredAt(memberEntity.getRegisteredAt())
+                .updatedAt(memberEntity.getUpdatedAt())
                 .build();
     }
 }

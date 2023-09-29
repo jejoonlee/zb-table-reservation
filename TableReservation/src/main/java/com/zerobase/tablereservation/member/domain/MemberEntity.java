@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Builder
 @Entity(name="member")
 @EntityListeners(value = AuditingEntityListener.class)
-public class Member implements UserDetails {
+public class MemberEntity implements UserDetails {
     @Id
     @Column(name ="USERNAME", unique = true)
     private String username;

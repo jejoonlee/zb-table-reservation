@@ -1,10 +1,11 @@
 package com.zerobase.tablereservation.member.service.impl;
 
-import com.zerobase.tablereservation.member.domain.Member;
+import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.member.dto.Login;
 import com.zerobase.tablereservation.member.dto.MemberDto;
 import com.zerobase.tablereservation.member.dto.MemberRegister;
 import com.zerobase.tablereservation.member.repository.MemberRepository;
+import com.zerobase.tablereservation.member.security.TokenProvider;
 import com.zerobase.tablereservation.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,23 +47,22 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         // 비밀번호 인코딩하기
         request.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Member member = request.toEntity();
-        member.setRole(role);
+        MemberEntity memberEntity = request.toEntity();
+        memberEntity.setRole(role);
 
-        memberRepository.save(member);
+        memberRepository.save(memberEntity);
 
-        MemberDto memberDto = MemberDto.fromEntity(member);
+        MemberDto memberDto = MemberDto.fromEntity(memberEntity);
 
         return MemberRegister.Response.from(memberDto);
     }
 
     @Override
     public Login.Response login(Login.Request request) {
-        Member user = memberRepository.findByUsername(request.getUsername())
+        MemberEntity user = memberRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
         // user에 들어간 비밀번호는 encoding이 되어 있다
-
         // encoding된 비밀번호를 먼저 확인
         // 다르면 예외발생
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
