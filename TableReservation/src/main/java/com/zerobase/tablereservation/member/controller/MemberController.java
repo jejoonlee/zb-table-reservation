@@ -5,7 +5,6 @@ import com.zerobase.tablereservation.member.dto.MemberRegister;
 import com.zerobase.tablereservation.member.security.TokenProvider;
 import com.zerobase.tablereservation.member.service.impl.MemberServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +34,7 @@ public class MemberController {
     public String login(@RequestBody Login.Request request) {
         Login.Response response = memberServiceImpl.login(request);
 
-        return "토큰이 생성이 되었습니다 : " + tokenProvider.generateToken(response.getUsername(), response.getOwnerOrCustomer());
+        return "토큰이 생성이 되었습니다\n" + tokenProvider.generateToken(response.getUsername(), response.getOwnerOrCustomer());
     }
 
 }

@@ -36,7 +36,7 @@ public class StoreDto {
                 .openTime(storeEntity.getOpenTime())
                 .closeTime(storeEntity.getCloseTime())
                 .breakStart(storeEntity.getBreakStart())
-                .breakFinish(storeEntity.getBreakFinish())
+                .breakFinish(storeEntity.getBreakEnd())
                 .registeredAt(storeEntity.getRegisteredAt())
                 .build();
     }

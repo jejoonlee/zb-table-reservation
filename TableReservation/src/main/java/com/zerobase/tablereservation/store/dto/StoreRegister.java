@@ -1,8 +1,6 @@
 package com.zerobase.tablereservation.store.dto;
 
 import com.sun.istack.NotNull;
-import com.zerobase.tablereservation.member.dto.MemberDto;
-import com.zerobase.tablereservation.member.dto.MemberRegister;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
 import lombok.*;
 
@@ -38,12 +36,9 @@ public class StoreRegister {
                     .openTime(this.openTime)
                     .closeTime(this.closeTime)
                     .breakStart(this.breakStart)
-                    .breakFinish(this.breakFinish)
+                    .breakEnd(this.breakFinish)
                     .build();
         }
-
-
-
     }
 
     @Getter

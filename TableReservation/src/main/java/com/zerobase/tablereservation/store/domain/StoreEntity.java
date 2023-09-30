@@ -8,7 +8,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Setter
 @Getter
@@ -22,7 +21,7 @@ public class StoreEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="STORE_ID", unique = true, nullable = false)
+    @Column(name="STORE_ID")
     private Long storeId;
 
     @ManyToOne
@@ -50,8 +49,8 @@ public class StoreEntity {
     @Column(name="BREAK_START", nullable = true)
     private String breakStart;
 
-    @Column(name="BREAK_FINISH", nullable = true)
-    private String breakFinish;
+    @Column(name="BREAK_END", nullable = true)
+    private String breakEnd;
 
     @Column(name ="REGISTERED_AT", nullable = false)
     @CreatedDate
