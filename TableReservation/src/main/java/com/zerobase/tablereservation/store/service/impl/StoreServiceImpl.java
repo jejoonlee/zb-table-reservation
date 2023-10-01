@@ -14,6 +14,9 @@ import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Setter
 @Getter
@@ -49,5 +52,27 @@ public class StoreServiceImpl implements StoreService {
         StoreDto storeDto = StoreDto.fromEntity(store);
 
         return StoreSearch.StoreDetailResponse.from(storeDto);
+    }
+
+    @Override
+    public List<HashMap<String, String>> getAllStores(String keyword) {
+
+        List<StoreEntity> stores = storeRepository
+                .findAllByStoreNameStartingWithIgnoreCase(keyword);
+
+        if (stores.size() == 0) throw new RuntimeException("검색한 키워드에 대한 정보가 없습니다");
+
+        List<HashMap<String, String>> result = new ArrayList<>();
+
+        for (StoreEntity store : stores) {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("매장 ID", String.format("%d", store.getStoreId()));
+            map.put("매장 이름", store.getStoreName());
+            map.put("매장 주소", store.getAddress1() + store.getAddress2());
+
+            result.add(map);
+        }
+
+        return result;
     }
 }

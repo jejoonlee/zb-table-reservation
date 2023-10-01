@@ -5,9 +5,13 @@ import com.zerobase.tablereservation.store.dto.StoreRegister;
 import com.zerobase.tablereservation.store.dto.StoreSearch;
 import com.zerobase.tablereservation.store.service.impl.StoreServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,6 +34,15 @@ public class StoreController {
         MemberEntity member = (MemberEntity) authentication.getPrincipal();
 
         return storeServiceImpl.registerStore(request, member);
+    }
+
+    // http://localhost:8080/store/search?keyword={keyword}
+    @GetMapping("/search")
+    public List<HashMap<String, String>> getAllStores (
+            @RequestParam String keyword,
+            final Pageable pageable
+    ) {
+        return storeServiceImpl.getAllStores(keyword);
     }
 
     // http://localhost:8080/store?storeId={storeId}
