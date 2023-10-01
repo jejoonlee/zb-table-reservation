@@ -27,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .authorizeRequests()
-                        .antMatchers("/**/register", "/**/login").permitAll() // 토큰 없이 접근 가능
+                        .antMatchers("/**/register", "/**/login", "/store").permitAll() // 토큰 없이 접근 가능
                 .and()
                     .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

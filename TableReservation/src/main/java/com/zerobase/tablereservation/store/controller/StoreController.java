@@ -1,8 +1,8 @@
 package com.zerobase.tablereservation.store.controller;
 
 import com.zerobase.tablereservation.member.domain.MemberEntity;
-import com.zerobase.tablereservation.member.security.TokenProvider;
 import com.zerobase.tablereservation.store.dto.StoreRegister;
+import com.zerobase.tablereservation.store.dto.StoreSearch;
 import com.zerobase.tablereservation.store.service.impl.StoreServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 public class StoreController {
 
     private final StoreServiceImpl storeServiceImpl;
-    private final TokenProvider tokenProvider;
 
+    // http://localhost:8080/store/register
     @PostMapping("/register")
     @PreAuthorize("hasRole('STORE_OWNER')")
     public StoreRegister.Response registerStore(
@@ -32,13 +32,12 @@ public class StoreController {
         return storeServiceImpl.registerStore(request, member);
     }
 
-    @GetMapping("/test")
-    public void test(
-            Authentication authentication
+    // http://localhost:8080/store?storeId={storeId}
+    @GetMapping()
+    public StoreSearch.StoreDetailResponse getStore(
+        @RequestParam Long storeId
     ){
-
-        System.out.println(authentication.getName());
-
+        return storeServiceImpl.getStore(storeId);
     }
 
 
