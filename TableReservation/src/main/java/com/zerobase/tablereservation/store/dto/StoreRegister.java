@@ -23,7 +23,7 @@ public class StoreRegister {
         @NotNull
         private String openTime;
         @NotNull
-        private String closeTime;
+        private String lastReserveTime;
         private String breakStart;
         private String breakFinish;
 
@@ -34,7 +34,7 @@ public class StoreRegister {
                     .address2(this.address2)
                     .detail(this.detail)
                     .openTime(this.openTime)
-                    .closeTime(this.closeTime)
+                    .lastReserveTime(this.lastReserveTime)
                     .breakStart(this.breakStart)
                     .breakEnd(this.breakFinish)
                     .build();
@@ -52,7 +52,7 @@ public class StoreRegister {
         private String address2;
         private String detail;
         private String openTime;
-        private String closeTime;
+        private String lastReserveTime;
 
 
         public static StoreRegister.Response from(StoreDto storeDto) {
@@ -62,7 +62,7 @@ public class StoreRegister {
                     .address2(storeDto.getAddress2())
                     .detail(storeDto.getDetail())
                     .openTime(storeDto.getOpenTime())
-                    .closeTime(storeDto.getCloseTime())
+                    .lastReserveTime(storeDto.getLastReserveTime())
                     .build();
         }
 

@@ -1,10 +1,11 @@
 package com.zerobase.tablereservation.visitor.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sun.istack.NotNull;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class CustomerReserveRegister {
 
@@ -22,11 +23,9 @@ public class CustomerReserveRegister {
         private Long peopleNum;
 
         @NotNull
-        @DateTimeFormat(pattern="yyyy-MM-dd")
-        private Date reserveDate;
-        @NotNull
-        private String reserveTime;
-
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm")
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern ="yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
+        private LocalDateTime reserveDate;
 
     }
 
@@ -39,8 +38,7 @@ public class CustomerReserveRegister {
         private Long reservationId;
         private String username;
         private String storeName;
-        private Date reserveDate;
-        private String reserveTime;
+        private LocalDateTime reserveDate;
         private String resultMessage;
         private static String MESSAGE =
                 "매장에 도착했을 때에 키오스크에 예약 번호와 이름을 입력해주세요\n" +
@@ -52,7 +50,6 @@ public class CustomerReserveRegister {
                     .username(reserveDto.getUsername())
                     .storeName(reserveDto.getStoreName())
                     .reserveDate(reserveDto.getReserveDate())
-                    .reserveTime(reserveDto.getReserveTime())
                     .resultMessage(MESSAGE)
                     .build();
         }

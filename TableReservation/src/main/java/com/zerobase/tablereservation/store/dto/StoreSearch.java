@@ -18,7 +18,7 @@ public class StoreSearch {
         private String address2;
         private String detail;
         private String openTime;
-        private String closeTime;
+        private String lastReserveTime;
         private String breakStart;
         private String breakFinish;
 
@@ -34,7 +34,7 @@ public class StoreSearch {
                     .address2(storeDto.getAddress2())
                     .detail(storeDto.getDetail())
                     .openTime(storeDto.getOpenTime())
-                    .closeTime(storeDto.getCloseTime())
+                    .lastReserveTime(storeDto.getLastReserveTime())
                     .breakStart(storeDto.getBreakStart())
                     .breakFinish(storeDto.getBreakFinish())
                     .build();

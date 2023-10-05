@@ -9,7 +9,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -37,10 +36,7 @@ public class ReserveEntity {
     private Long peopleNum;
 
     @Column(name = "RESERVE_DATE", nullable = false)
-    private Date reserveDate;
-
-    @Column(name = "RESERVE_TIME", nullable = false)
-    private String reserveTime;
+    private LocalDateTime reserveDate;
 
     @Column(name = "SERVICE_USE", nullable = false)
     private ServiceUseStatus serviceUse;

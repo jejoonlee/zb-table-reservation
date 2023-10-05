@@ -6,7 +6,6 @@ import com.zerobase.tablereservation.visitor.domain.ReserveEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 @Getter
@@ -20,8 +19,7 @@ public class ReserveDto {
     private Long storeId;
     private String storeName;
     private Long peopleNum;
-    private Date reserveDate;
-    private String reserveTime;
+    private LocalDateTime reserveDate;
     private String serviceUse;
     private String review;
     private LocalDateTime makeReserveAt;
@@ -37,7 +35,6 @@ public class ReserveDto {
                 .storeName(store.getStoreName())
                 .peopleNum(reserveEntity.getPeopleNum())
                 .reserveDate(reserveEntity.getReserveDate())
-                .reserveTime(reserveEntity.getReserveTime())
                 .review(reserveEntity.getReview())
                 .makeReserveAt(reserveEntity.getMakeReserveAt())
                 .build();

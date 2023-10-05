@@ -20,7 +20,7 @@ public class StoreDto {
     private String address2;
     private String detail;
     private String openTime;
-    private String closeTime;
+    private String lastReserveTime;
     private String breakStart;
     private String breakFinish;
     private LocalDateTime registeredAt;
@@ -34,7 +34,7 @@ public class StoreDto {
                 .address2(storeEntity.getAddress2())
                 .detail(storeEntity.getDetail())
                 .openTime(storeEntity.getOpenTime())
-                .closeTime(storeEntity.getCloseTime())
+                .lastReserveTime(storeEntity.getLastReserveTime())
                 .breakStart(storeEntity.getBreakStart())
                 .breakFinish(storeEntity.getBreakEnd())
                 .registeredAt(storeEntity.getRegisteredAt())

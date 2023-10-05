@@ -43,8 +43,8 @@ public class StoreEntity {
     @Column(name="OPEN_TIME", nullable = false)
     private String openTime;
 
-    @Column(name="CLOSE_TIME", nullable = false)
-    private String closeTime;
+    @Column(name="LAST_RESERVE_TIME", nullable = false)
+    private String lastReserveTime;
 
     @Column(name="BREAK_START", nullable = true)
     private String breakStart;
