@@ -48,9 +48,6 @@ public class KioskServiceImpl implements KisoskService {
         // 현재 기준으로 10분 이후에 도착하면 예약 취소됨
         now.minusMinutes(10);
 
-        System.out.println(reserveTime);
-        System.out.println(now);
-
         if(now.isAfter(reserveTime)) return false;
 
         return true;
@@ -81,11 +78,11 @@ public class KioskServiceImpl implements KisoskService {
         if (!validReserveTime(reserve)) {
             reserve.setServiceUse(ServiceUseStatus.CANCEL_TIME_LIMIT);
             reserveRepository.save(reserve);
-            return CANCEL_BY_TIME_MESSAGE;
+            throw new RuntimeException(CANCEL_BY_TIME_MESSAGE);
         }
 
         if (!beforeReserve(reserve)) {
-            return CANCELED_RESERVE;
+            throw new RuntimeException(CANCELED_RESERVE);
         }
 
         reserve.setServiceUse(ServiceUseStatus.USED);
