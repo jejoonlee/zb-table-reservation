@@ -1,7 +1,7 @@
 package com.zerobase.tablereservation.visitor.service.impl;
 
 import com.zerobase.tablereservation.member.domain.MemberEntity;
-import com.zerobase.tablereservation.store.domain.ServiceUseStatus;
+import com.zerobase.tablereservation.visitor.domain.ServiceUseStatus;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
 import com.zerobase.tablereservation.store.repository.StoreRepository;
 import com.zerobase.tablereservation.visitor.domain.ReserveEntity;

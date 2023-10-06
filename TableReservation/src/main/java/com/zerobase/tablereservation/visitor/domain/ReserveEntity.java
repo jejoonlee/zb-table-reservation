@@ -1,7 +1,6 @@
 package com.zerobase.tablereservation.visitor.domain;
 
 import com.zerobase.tablereservation.member.domain.MemberEntity;
-import com.zerobase.tablereservation.store.domain.ServiceUseStatus;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
