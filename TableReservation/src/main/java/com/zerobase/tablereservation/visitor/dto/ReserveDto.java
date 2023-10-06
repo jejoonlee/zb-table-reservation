@@ -1,6 +1,5 @@
 package com.zerobase.tablereservation.visitor.dto;
 
-import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
 import com.zerobase.tablereservation.visitor.domain.ReserveEntity;
 import lombok.*;
@@ -18,6 +17,7 @@ public class ReserveDto {
     private String username;
     private Long storeId;
     private String storeName;
+    private String storeAddress;
     private Long peopleNum;
     private LocalDateTime reserveDate;
     private String serviceUse;
@@ -25,16 +25,17 @@ public class ReserveDto {
     private LocalDateTime makeReserveAt;
 
     public static ReserveDto fromEntity(ReserveEntity reserveEntity) {
-        MemberEntity member = reserveEntity.getMemberEntity();
         StoreEntity store = reserveEntity.getStoreEntity();
 
         return ReserveDto.builder()
                 .reservationId(reserveEntity.getReservationId())
-                .username(member.getUsername())
+                .username(reserveEntity.getMemberEntity().getUsername())
                 .storeId(store.getStoreId())
                 .storeName(store.getStoreName())
+                .storeAddress(store.getAddress1() + " " + store.getAddress2())
                 .peopleNum(reserveEntity.getPeopleNum())
                 .reserveDate(reserveEntity.getReserveDate())
+                .serviceUse(reserveEntity.getServiceUse().name())
                 .review(reserveEntity.getReview())
                 .makeReserveAt(reserveEntity.getMakeReserveAt())
                 .build();

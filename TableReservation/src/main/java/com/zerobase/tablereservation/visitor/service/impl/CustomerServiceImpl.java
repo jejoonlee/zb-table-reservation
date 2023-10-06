@@ -1,12 +1,14 @@
 package com.zerobase.tablereservation.visitor.service.impl;
 
 import com.zerobase.tablereservation.member.domain.MemberEntity;
-import com.zerobase.tablereservation.visitor.domain.ServiceUseStatus;
+import com.zerobase.tablereservation.member.repository.MemberRepository;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
 import com.zerobase.tablereservation.store.repository.StoreRepository;
 import com.zerobase.tablereservation.visitor.domain.ReserveEntity;
+import com.zerobase.tablereservation.visitor.domain.ServiceUseStatus;
 import com.zerobase.tablereservation.visitor.dto.CustomerReserveRegister;
 import com.zerobase.tablereservation.visitor.dto.ReserveDto;
+import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
 import com.zerobase.tablereservation.visitor.repository.ReserveRepository;
 import com.zerobase.tablereservation.visitor.service.CustomerService;
 import lombok.Getter;
@@ -15,6 +17,8 @@ import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Setter
 @Getter
@@ -24,6 +28,51 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final StoreRepository storeRepository;
     private final ReserveRepository reserveRepository;
+    private final MemberRepository memberRepository;
+
+    @Override
+    public CustomerReserveRegister.Response makeReservation(CustomerReserveRegister.Request request, MemberEntity member) {
+
+        StoreEntity store = storeRepository.findByStoreId(request.getStoreId())
+                .orElseThrow(() -> new RuntimeException("없는 상점입니다"));
+
+        // 해당 상점이 여는 시간에 예약을 했는지 확인한다
+        LocalDateTime reserveDate = request.getReserveDate();
+
+        if (!validTime(reserveDate, store.getOpenTime(), store.getLastReserveTime(), store.getBreakStart(), store.getBreakEnd())) {
+            throw new RuntimeException("예약을 할 수 없는 시간입니다");
+        } else {
+            System.out.println(reserveDate + "날짜 저장");
+        }
+
+        ReserveEntity reserve = ReserveEntity.builder()
+                .memberEntity(member)
+                .storeEntity(store)
+                .peopleNum(request.getPeopleNum())
+                .reserveDate(reserveDate)
+                .serviceUse(ServiceUseStatus.BEFORE)
+                .review(null)
+                .makeReserveAt(LocalDateTime.now())
+                .build();
+
+        reserveRepository.save(reserve);
+
+        ReserveDto reserveDto = ReserveDto.fromEntity(reserve);
+
+        return CustomerReserveRegister.Response.fromDto(reserveDto);
+    }
+
+    @Override
+    public List<ReserveRecord.Response> getMyReservations(MemberEntity member) {
+
+        // 예약상태 확인 (Before을 확인해서, status를 바꿀 것이 있는지 확인 및 변경)
+        List<ReserveEntity> reserve = reserveRepository.findAllByMemberEntityAndServiceUse(member, ServiceUseStatus.BEFORE);
+
+        checkReservationStatus(reserve);
+
+        // 최종적으로 해당 유저의 모든 정보를 리스트에 넣어서 응답하기
+        return getReservationList(member);
+    }
 
     private boolean validTime(LocalDateTime reserveDate, String openTime, String lastReserve, String breakStart, String breakEnd) {
 
@@ -65,39 +114,29 @@ public class CustomerServiceImpl implements CustomerService {
         return true;
     }
 
-    @Override
-    public CustomerReserveRegister.Response makeReservation(CustomerReserveRegister.Request request, MemberEntity member) {
 
-        StoreEntity store = storeRepository.findByStoreId(request.getStoreId())
-                .orElseThrow(() -> new RuntimeException("없는 상점입니다"));
+    private void checkReservationStatus(List<ReserveEntity> reserveBeforeUse) {
+        LocalDateTime now = LocalDateTime.now();
+        now.minusMinutes(10);
 
-        // 해당 상점이 여는 시간에 예약을 했는지 확인한다
-        LocalDateTime reserveDate = request.getReserveDate();
+        for (ReserveEntity reserve : reserveBeforeUse) {
+            // 예약 시간이 이미 지났거나, 예약 10분전에 유저가 kiosk에서 예약을 확인 못 하면 자동으로 CANCEL_TIME_LIMIT으로 바꾼다
+            if(now.isAfter(reserve.getReserveDate())) {
+                reserve.setServiceUse(ServiceUseStatus.CANCEL_TIME_LIMIT);
+                reserveRepository.save(reserve);
+            }
+        }
+    }
 
-        System.out.println("현재 : " + LocalDateTime.now());
+    private List<ReserveRecord.Response> getReservationList(MemberEntity member){
+        List<ReserveEntity> list = reserveRepository.findAllByMemberEntityOrderByReserveDateDesc(member);
+        List<ReserveRecord.Response> result = new ArrayList<>();
 
-        System.out.println("예약 : " + reserveDate);
-
-        if (!validTime(reserveDate, store.getOpenTime(), store.getLastReserveTime(), store.getBreakStart(), store.getBreakEnd())) {
-            throw new RuntimeException("예약을 할 수 없는 시간입니다");
-        } else {
-            System.out.println(reserveDate + "날짜 저장");
+        for (ReserveEntity reserve : list) {
+            result.add(ReserveRecord.Response.fromDto(ReserveDto.fromEntity(reserve)));
         }
 
-        ReserveEntity reserve = ReserveEntity.builder()
-                .memberEntity(member)
-                .storeEntity(store)
-                .peopleNum(request.getPeopleNum())
-                .reserveDate(reserveDate)
-                .serviceUse(ServiceUseStatus.BEFORE)
-                .review(null)
-                .makeReserveAt(LocalDateTime.now())
-                .build();
-
-        reserveRepository.save(reserve);
-
-        ReserveDto reserveDto = ReserveDto.fromEntity(reserve);
-
-        return CustomerReserveRegister.Response.fromDto(reserveDto);
+        return result;
     }
+
 }

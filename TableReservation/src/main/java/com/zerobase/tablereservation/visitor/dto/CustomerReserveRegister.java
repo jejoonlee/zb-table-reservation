@@ -38,6 +38,7 @@ public class CustomerReserveRegister {
         private Long reservationId;
         private String username;
         private String storeName;
+        private String storeAddress;
         private LocalDateTime reserveDate;
         private String resultMessage;
         private static String MESSAGE =
@@ -49,6 +50,7 @@ public class CustomerReserveRegister {
                     .reservationId(reserveDto.getReservationId())
                     .username(reserveDto.getUsername())
                     .storeName(reserveDto.getStoreName())
+                    .storeAddress(reserveDto.getStoreAddress())
                     .reserveDate(reserveDto.getReserveDate())
                     .resultMessage(MESSAGE)
                     .build();
