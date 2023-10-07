@@ -3,7 +3,6 @@ package com.zerobase.tablereservation.visitor.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class ReserveRecord {
 
@@ -15,6 +14,7 @@ public class ReserveRecord {
     public static class Response {
         private Long reservationNum;
         private String username;
+        private Long storeId;
         private String storeName;
         private String storeAddress;
         private Long peopleNum;
@@ -25,6 +25,7 @@ public class ReserveRecord {
             return Response.builder()
                     .reservationNum(reserveDto.getReservationId())
                     .username(reserveDto.getUsername())
+                    .storeId(reserveDto.getStoreId())
                     .storeName(reserveDto.getStoreName())
                     .storeAddress(reserveDto.getStoreAddress())
                     .peopleNum(reserveDto.getPeopleNum())
@@ -34,12 +35,4 @@ public class ReserveRecord {
         }
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class ResponseList {
-        private List<ReserveDto> list;
-    }
 }
