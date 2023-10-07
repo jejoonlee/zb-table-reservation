@@ -1,6 +1,7 @@
 package com.zerobase.tablereservation.store.controller;
 
 import com.zerobase.tablereservation.member.domain.MemberEntity;
+import com.zerobase.tablereservation.store.dto.StoreCancelReserve;
 import com.zerobase.tablereservation.store.dto.StoreRegister;
 import com.zerobase.tablereservation.store.dto.StoreSearch;
 import com.zerobase.tablereservation.store.service.impl.StoreServiceImpl;
@@ -52,6 +53,19 @@ public class StoreController {
         MemberEntity member = authenticate(authentication);
 
         return storeServiceImpl.getAllReservations(storeId, member);
+    }
+
+    // http://localhost:8080/store/cancel-reservation
+    @PostMapping("/cancel-reservation")
+    @PreAuthorize("hasRole('STORE_OWNER')")
+    public String cancelReservation(
+            @RequestBody StoreCancelReserve.Request request,
+            Authentication authentication
+            ) {
+
+        MemberEntity member = authenticate(authentication);
+
+        return storeServiceImpl.cancelReservation(request, member);
     }
 
     // http://localhost:8080/store/search?keyword={keyword}

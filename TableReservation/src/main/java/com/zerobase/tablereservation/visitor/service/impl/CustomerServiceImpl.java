@@ -9,6 +9,7 @@ import com.zerobase.tablereservation.visitor.domain.ServiceUseStatus;
 import com.zerobase.tablereservation.visitor.dto.CustomerReserveRegister;
 import com.zerobase.tablereservation.visitor.dto.ReserveDto;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
+import com.zerobase.tablereservation.visitor.dto.WriteReview;
 import com.zerobase.tablereservation.visitor.repository.ReserveRepository;
 import com.zerobase.tablereservation.visitor.service.CustomerService;
 import lombok.Getter;
@@ -74,6 +75,32 @@ public class CustomerServiceImpl implements CustomerService {
         return getReservationList(member);
     }
 
+    @Override
+    public WriteReview.Response writeReview(WriteReview.Request request, MemberEntity member) {
+
+        // request에 있는 예약 번호를 통해서 예약 엔티티를 찾는다
+        ReserveEntity reserve = reserveRepository.findById(request.getReservationId())
+                .orElseThrow(() -> new RuntimeException("해당 예약 번호를 찾을 수 없습니다"));
+
+        // 예약을 한 유저와, 로그한 유저가 일치한지 확인한다
+        if (!validUserToWriteReview(reserve, member))
+            throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
+
+
+        // 예약의 SERVICE_USE가 BEFORE 또는 USED일 때에만 review를 쓸 수 있다
+        if (reserve.getServiceUse() != ServiceUseStatus.USED)
+            throw new RuntimeException("예약을 하고, 매장을 이용해야 리뷰를 작성하실 수 있습니다");
+
+        // 리뷰가 작성이 되어 있으면, 다시 작성을 못 하게 한다
+        if (reserve.getReview() != null)
+            throw new RuntimeException("이미 리뷰를 작성했습니다. 수정 페이지에서 리뷰를 수정해주세요.");
+
+        reserve.setReview(request.getReview());
+        reserveRepository.save(reserve);
+
+        return WriteReview.Response.fromDto(ReserveDto.fromEntity(reserve));
+    }
+
     private boolean validTime(LocalDateTime reserveDate, String openTime, String lastReserve, String breakStart, String breakEnd) {
 
         // 예약은 지금 시간부터 2시간 이후 부터 할 수 있다
@@ -137,6 +164,13 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         return result;
+    }
+
+    private boolean validUserToWriteReview(ReserveEntity reserve, MemberEntity member) {
+
+        if (!reserve.getMemberEntity().getUsername().equals(member.getUsername())) return false;
+
+        return true;
     }
 
 }

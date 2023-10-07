@@ -3,6 +3,7 @@ package com.zerobase.tablereservation.visitor.controller;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.visitor.dto.CustomerReserveRegister;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
+import com.zerobase.tablereservation.visitor.dto.WriteReview;
 import com.zerobase.tablereservation.visitor.service.impl.CustomerServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,8 +40,8 @@ public class CustomerController {
         return customerService.makeReservation(request, member);
     }
 
-    // http://localhost:8080/customer/my_reservations
-    @GetMapping("/my_reservations")
+    // http://localhost:8080/customer/my-reservations
+    @GetMapping("/my-reservations")
     @PreAuthorize("hasRole('STORE_USER')")
     public List<ReserveRecord.Response> getMyReservations (
             Authentication authentication
@@ -49,6 +50,19 @@ public class CustomerController {
         MemberEntity member = authenticate(authentication);
 
         return customerService.getMyReservations(member);
+    }
+
+    // http://localhost:8080/customer/write-review
+    @PostMapping("/write-review")
+    @PreAuthorize("hasRole('STORE_USER')")
+    public WriteReview.Response writeReview (
+            @RequestBody WriteReview.Request request,
+            Authentication authentication
+    ) {
+
+        MemberEntity member = authenticate(authentication);
+
+        return customerService.writeReview(request, member);
     }
 
 }
