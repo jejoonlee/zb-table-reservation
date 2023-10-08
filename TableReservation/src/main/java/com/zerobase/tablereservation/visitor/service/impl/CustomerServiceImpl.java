@@ -76,6 +76,36 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerReserveRegister.Response updateReservation(CustomerReserveRegister.RequestUpdate request, MemberEntity member) {
+        // 유효한 예약 내역인지 확인한다
+        ReserveEntity reserve = reserveRepository.findById(request.getReservationNum())
+                .orElseThrow(() -> new RuntimeException("해당 예약 내역이 존재하지 않습니다"));
+
+        // 예약 내역이 로그인 한 유저가 작성한 것인지 확인
+        if (!validUserForReserve(reserve, member))
+            throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
+
+        // 매장이 유효한지 확인
+        StoreEntity store = storeRepository.findByStoreId(request.getStoreId())
+                .orElseThrow(() -> new RuntimeException("찾는 매장이 저장되어 있지 않습니다"));
+
+        // SERVICE_USE가 BEFORE인지 확인 (BEFORE에만 수정 가능)
+        if (reserve.getServiceUse() != ServiceUseStatus.BEFORE)
+            throw new RuntimeException("예약이 이용이 유효한 상태만 수정이 가능합니다");
+
+        // 바꾼 예약 시간이 유효한지 확인
+        if (!validTime(request.getReserveDate(), store.getOpenTime(), store.getLastReserveTime(), store.getBreakStart(), store.getBreakEnd()))
+            throw new RuntimeException("해당 시간으로 예약이 불가합니다");
+
+        reserve.setStoreEntity(store);
+        reserve.setReserveDate(request.getReserveDate());
+        reserve.setPeopleNum(request.getPeopleNum());
+        reserveRepository.save(reserve);
+
+        return CustomerReserveRegister.Response.fromDto(ReserveDto.fromEntity(reserve));
+    }
+
+    @Override
     public WriteReview.Response writeReview(WriteReview.Request request, MemberEntity member) {
 
         // request에 있는 예약 번호를 통해서 예약 엔티티를 찾는다
@@ -83,7 +113,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new RuntimeException("해당 예약 번호를 찾을 수 없습니다"));
 
         // 예약을 한 유저와, 로그한 유저가 일치한지 확인한다
-        if (!validUserToWriteReview(reserve, member))
+        if (!validUserForReserve(reserve, member))
             throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
 
 
@@ -127,7 +157,7 @@ public class CustomerServiceImpl implements CustomerService {
             String[] breakE = breakEnd.split(":");
 
             int breakSMin = Integer.parseInt(breakS[0]) * 60 + Integer.parseInt(breakS[1]);
-            int breakEMin = Integer.parseInt(breakE[0]) * 60 + Integer.parseInt(breakE[0]);
+            int breakEMin = Integer.parseInt(breakE[0]) * 60 + Integer.parseInt(breakE[1]);
 
             // 쉬는 시간이 있는 매장일 때에
             // 예약 시간이 오픈 전 또는 예약 시간 이후 일 때
@@ -166,7 +196,7 @@ public class CustomerServiceImpl implements CustomerService {
         return result;
     }
 
-    private boolean validUserToWriteReview(ReserveEntity reserve, MemberEntity member) {
+    private boolean validUserForReserve(ReserveEntity reserve, MemberEntity member) {
 
         if (!reserve.getMemberEntity().getUsername().equals(member.getUsername())) return false;
 

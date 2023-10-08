@@ -52,6 +52,29 @@ public class CustomerController {
         return customerService.getMyReservations(member);
     }
 
+    // http://localhost:8080/customer/reserve/update
+    @PutMapping("/reserve/update")
+    @PreAuthorize("hasRole('STORE_USER')")
+    public CustomerReserveRegister.Response reserveUpdate(
+            @RequestBody CustomerReserveRegister.RequestUpdate request,
+        Authentication authentication
+    ) {
+
+        MemberEntity member = authenticate(authentication);
+
+        return customerService.updateReservation(request, member);
+    }
+
+    // http://localhost:8080/customer/reserve/cancel
+    @DeleteMapping("/reserve/cancel")
+    @PreAuthorize("hasRole('STORE_USER')")
+    public String reserveDelete (
+            Authentication authentication
+    ){
+        MemberEntity member = authenticate(authentication);
+        return null;
+    }
+
     // http://localhost:8080/customer/write-review
     @PostMapping("/write-review")
     @PreAuthorize("hasRole('STORE_USER')")

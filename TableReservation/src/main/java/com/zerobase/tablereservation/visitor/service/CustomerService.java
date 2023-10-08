@@ -12,6 +12,8 @@ public interface CustomerService {
     CustomerReserveRegister.Response makeReservation(CustomerReserveRegister.Request request, MemberEntity member);
     List<ReserveRecord.Response> getMyReservations(MemberEntity member);
 
+    CustomerReserveRegister.Response updateReservation(CustomerReserveRegister.RequestUpdate request, MemberEntity member);
+
     WriteReview.Response writeReview(WriteReview.Request request, MemberEntity member);
 
 }

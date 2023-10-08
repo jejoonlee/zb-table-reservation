@@ -26,7 +26,28 @@ public class CustomerReserveRegister {
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm")
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern ="yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
         private LocalDateTime reserveDate;
+    }
 
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RequestUpdate {
+
+        @NotNull
+        private Long reservationNum;
+
+        @NotNull
+        private Long storeId;
+
+        @NotNull
+        private Long peopleNum;
+
+        @NotNull
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm")
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern ="yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
+        private LocalDateTime reserveDate;
     }
 
     @Getter
