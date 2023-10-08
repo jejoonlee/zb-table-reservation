@@ -3,7 +3,7 @@ package com.zerobase.tablereservation.visitor.controller;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.visitor.dto.ReservationMessage;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
-import com.zerobase.tablereservation.visitor.dto.WriteReview;
+import com.zerobase.tablereservation.visitor.dto.ReviewMessage;
 import com.zerobase.tablereservation.visitor.service.impl.CustomerServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -76,11 +76,14 @@ public class CustomerController {
         return customerService.cancelReservation(reserveNum, member);
     }
 
-    // http://localhost:8080/customer/write-review
-    @PostMapping("/write-review")
+
+    // ============== Review CRUD ==================
+
+    // http://localhost:8080/customer/review/write-review
+    @PostMapping("/review/write")
     @PreAuthorize("hasRole('STORE_USER')")
-    public WriteReview.Response writeReview (
-            @RequestBody WriteReview.Request request,
+    public ReviewMessage.Response writeReview (
+            @RequestBody ReviewMessage.Request request,
             Authentication authentication
     ) {
 
@@ -88,5 +91,45 @@ public class CustomerController {
 
         return customerService.writeReview(request, member);
     }
+
+
+    // http://localhost:8080/customer/review/read
+    @GetMapping("/review/read")
+    @PreAuthorize("hasRole('STORE_USER')")
+    public List<ReviewMessage.Response> getAllUserReview(
+            Authentication authentication
+    ){
+
+        MemberEntity member = authenticate(authentication);
+
+        return customerService.getAllUserReview(member);
+    }
+
+
+    // http://localhost:8080/customer/review/update
+    @PostMapping("/review/update")
+    @PreAuthorize("hasRole('STORE_USER')")
+    public ReviewMessage.Response updateReview(
+        @RequestBody ReviewMessage.Request request,
+        Authentication authentication
+    ){
+        MemberEntity member = authenticate(authentication);
+
+        return customerService.updateReview(request, member);
+    }
+
+    // http://localhost:8080/customer/review/delete
+    @DeleteMapping("/review/delete")
+    @PreAuthorize("hasRole('STORE_USER')")
+    public String deleteReview(
+        @RequestParam Long reserveNum,
+        Authentication authentication
+    ) {
+
+        MemberEntity member = authenticate(authentication);
+
+        return null;
+    }
+
 
 }

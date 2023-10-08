@@ -16,4 +16,6 @@ public interface ReserveRepository extends JpaRepository<ReserveEntity, Long> {
 
     List<ReserveEntity> findAllByStoreEntityAndServiceUseOrderByReserveDateDesc(StoreEntity store, ServiceUseStatus serviceUseStatus);
 
+    List<ReserveEntity> findAllByMemberEntityAndReviewIsNotNull(MemberEntity member);
+
 }

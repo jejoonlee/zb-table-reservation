@@ -3,7 +3,7 @@ package com.zerobase.tablereservation.visitor.service;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.visitor.dto.ReservationMessage;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
-import com.zerobase.tablereservation.visitor.dto.WriteReview;
+import com.zerobase.tablereservation.visitor.dto.ReviewMessage;
 
 import java.util.List;
 
@@ -16,6 +16,10 @@ public interface CustomerService {
 
     String cancelReservation(Long reserveNum, MemberEntity member);
 
-    WriteReview.Response writeReview(WriteReview.Request request, MemberEntity member);
+    ReviewMessage.Response writeReview(ReviewMessage.Request request, MemberEntity member);
+
+    List<ReviewMessage.Response> getAllUserReview(MemberEntity member);
+
+    ReviewMessage.Response updateReview(ReviewMessage.Request request, MemberEntity member);
 
 }
