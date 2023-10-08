@@ -6,7 +6,7 @@ import com.zerobase.tablereservation.store.domain.StoreEntity;
 import com.zerobase.tablereservation.store.repository.StoreRepository;
 import com.zerobase.tablereservation.visitor.domain.ReserveEntity;
 import com.zerobase.tablereservation.visitor.domain.ServiceUseStatus;
-import com.zerobase.tablereservation.visitor.dto.CustomerReserveRegister;
+import com.zerobase.tablereservation.visitor.dto.ReservationMessage;
 import com.zerobase.tablereservation.visitor.dto.ReserveDto;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
 import com.zerobase.tablereservation.visitor.dto.WriteReview;
@@ -31,8 +31,10 @@ public class CustomerServiceImpl implements CustomerService {
     private final ReserveRepository reserveRepository;
     private final MemberRepository memberRepository;
 
+    private String DELETE_MESSAGE_SUCCESS = "성공적으로 예약을 삭제했습니다";
+
     @Override
-    public CustomerReserveRegister.Response makeReservation(CustomerReserveRegister.Request request, MemberEntity member) {
+    public ReservationMessage.Response makeReservation(ReservationMessage.Request request, MemberEntity member) {
 
         StoreEntity store = storeRepository.findByStoreId(request.getStoreId())
                 .orElseThrow(() -> new RuntimeException("없는 상점입니다"));
@@ -60,7 +62,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         ReserveDto reserveDto = ReserveDto.fromEntity(reserve);
 
-        return CustomerReserveRegister.Response.fromDto(reserveDto);
+        return ReservationMessage.Response.fromDto(reserveDto);
     }
 
     @Override
@@ -76,7 +78,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerReserveRegister.Response updateReservation(CustomerReserveRegister.RequestUpdate request, MemberEntity member) {
+    public ReservationMessage.Response updateReservation(ReservationMessage.RequestUpdate request, MemberEntity member) {
         // 유효한 예약 내역인지 확인한다
         ReserveEntity reserve = reserveRepository.findById(request.getReservationNum())
                 .orElseThrow(() -> new RuntimeException("해당 예약 내역이 존재하지 않습니다"));
@@ -102,7 +104,23 @@ public class CustomerServiceImpl implements CustomerService {
         reserve.setPeopleNum(request.getPeopleNum());
         reserveRepository.save(reserve);
 
-        return CustomerReserveRegister.Response.fromDto(ReserveDto.fromEntity(reserve));
+        return ReservationMessage.Response.fromDto(ReserveDto.fromEntity(reserve));
+    }
+
+    @Override
+    public String cancelReservation(Long reserveNum, MemberEntity member) {
+
+        // 예약 entity 가지고 오기
+        ReserveEntity reserve = reserveRepository.findById(reserveNum)
+                .orElseThrow(() -> new RuntimeException("해당 예약 내역이 존재하지 않습니다"));
+
+        // 예약 내역을 삭제하려는 로그인한 유저가, 작성한 예약 내역인가?
+        if (!validUserForReserve(reserve, member))
+            throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
+
+        reserveRepository.delete(reserve);
+
+        return DELETE_MESSAGE_SUCCESS;
     }
 
     @Override

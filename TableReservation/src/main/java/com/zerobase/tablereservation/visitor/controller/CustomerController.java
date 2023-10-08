@@ -1,7 +1,7 @@
 package com.zerobase.tablereservation.visitor.controller;
 
 import com.zerobase.tablereservation.member.domain.MemberEntity;
-import com.zerobase.tablereservation.visitor.dto.CustomerReserveRegister;
+import com.zerobase.tablereservation.visitor.dto.ReservationMessage;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
 import com.zerobase.tablereservation.visitor.dto.WriteReview;
 import com.zerobase.tablereservation.visitor.service.impl.CustomerServiceImpl;
@@ -30,8 +30,8 @@ public class CustomerController {
     // http://localhost:8080/customer/reserve
     @PostMapping("/reserve")
     @PreAuthorize("hasRole('STORE_USER')")
-    public CustomerReserveRegister.Response reserve(
-            @RequestBody CustomerReserveRegister.Request request,
+    public ReservationMessage.Response reserve(
+            @RequestBody ReservationMessage.Request request,
             Authentication authentication
     ) {
 
@@ -55,8 +55,8 @@ public class CustomerController {
     // http://localhost:8080/customer/reserve/update
     @PutMapping("/reserve/update")
     @PreAuthorize("hasRole('STORE_USER')")
-    public CustomerReserveRegister.Response reserveUpdate(
-            @RequestBody CustomerReserveRegister.RequestUpdate request,
+    public ReservationMessage.Response reserveUpdate(
+            @RequestBody ReservationMessage.RequestUpdate request,
         Authentication authentication
     ) {
 
@@ -65,14 +65,15 @@ public class CustomerController {
         return customerService.updateReservation(request, member);
     }
 
-    // http://localhost:8080/customer/reserve/cancel
+    // http://localhost:8080/customer/reserve/cancel?reserveNum={reserveNum}
     @DeleteMapping("/reserve/cancel")
     @PreAuthorize("hasRole('STORE_USER')")
     public String reserveDelete (
+            @RequestParam Long reserveNum,
             Authentication authentication
     ){
         MemberEntity member = authenticate(authentication);
-        return null;
+        return customerService.cancelReservation(reserveNum, member);
     }
 
     // http://localhost:8080/customer/write-review
