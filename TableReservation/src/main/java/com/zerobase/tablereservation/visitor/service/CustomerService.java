@@ -22,4 +22,6 @@ public interface CustomerService {
 
     ReviewMessage.Response updateReview(ReviewMessage.Request request, MemberEntity member);
 
+    String deleteReview(Long reserveNum, MemberEntity member);
+
 }

@@ -5,8 +5,8 @@ import com.zerobase.tablereservation.member.repository.MemberRepository;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
 import com.zerobase.tablereservation.store.dto.StoreCancelReserve;
 import com.zerobase.tablereservation.store.dto.StoreDto;
-import com.zerobase.tablereservation.store.dto.StoreRegister;
-import com.zerobase.tablereservation.store.dto.StoreSearch;
+import com.zerobase.tablereservation.store.dto.StoreMessage;
+import com.zerobase.tablereservation.store.dto.StoreDetailMessage;
 import com.zerobase.tablereservation.store.repository.StoreRepository;
 import com.zerobase.tablereservation.store.service.StoreService;
 import com.zerobase.tablereservation.visitor.domain.ReserveEntity;
@@ -37,7 +37,7 @@ public class StoreServiceImpl implements StoreService {
     private String CANCEL_SUCCESS_MESSAGE = "예약 내역을 성공적으로 삭제했습니다";
 
     @Override
-    public StoreRegister.Response registerStore(StoreRegister.Request request, MemberEntity member) {
+    public StoreMessage.Response registerStore(StoreMessage.Request request, MemberEntity member) {
 
         StoreEntity storeEntity = request.toEntity();
 
@@ -48,7 +48,44 @@ public class StoreServiceImpl implements StoreService {
 
         StoreDto storeDto = StoreDto.fromEntity(storeEntity);
 
-        return StoreRegister.Response.from(storeDto);
+        return StoreMessage.Response.fromDto(storeDto);
+    }
+
+    @Override
+    public List<StoreMessage.Response> getAllRegisteredStores(MemberEntity member) {
+
+        List<StoreMessage.Response> result = new ArrayList<>();
+        List<StoreEntity> allStores = storeRepository.findAllByUsername(member);
+
+        for (StoreEntity store : allStores) {
+            result.add(StoreMessage.Response.fromDto(StoreDto.fromEntity(store)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public StoreMessage.Response updateStore(StoreMessage.UpdateRequest request, MemberEntity member) {
+
+        StoreEntity store = storeRepository.findByStoreId(request.getStoreNum())
+                .orElseThrow(() -> new RuntimeException("등록되지 않은 매장 ID 입니다"));
+
+        if (!isValidOwner(store, member))
+            throw new RuntimeException("매장 점주와, 로그인한 유저 정보가 일치해야 합니다");
+
+        store.setStoreName(request.getStoreName());
+        store.setAddress1(request.getAddress1());
+        store.setAddress2(request.getAddress2());
+        store.setDetail(request.getDetail());
+        store.setOpenTime(request.getOpenTime());
+        store.setLastReserveTime(request.getLastReserveTime());
+        store.setBreakStart(request.getBreakStart());
+        store.setBreakEnd(request.getBreakFinish());
+        store.setUpdatedAt(LocalDateTime.now());
+
+        storeRepository.save(store);
+
+        return StoreMessage.Response.fromDto(StoreDto.fromEntity(store));
     }
 
 
@@ -59,7 +96,7 @@ public class StoreServiceImpl implements StoreService {
                 .orElseThrow(() -> new RuntimeException("등록되지 않은 매장 ID 입니다"));
 
         // 입력한 상점이, 로그인한 주인이 등록한 상점인지 확인하기
-        if (!isValidOwner(store, member)) throw new RuntimeException("등록한 매장에 대한 예약 내역만 볼 수 있습니다");
+        if (!isValidOwner(store, member)) throw new RuntimeException("매장 점주와, 로그인한 유저 정보가 일치해야 합니다");
 
 
         // 맞으면 해당 상점에 대한 모든 예약 내역 받아오기 (오름차순 + 예약 상태 Before만)
@@ -98,14 +135,14 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSearch.StoreDetailResponse getStore(Long storeId) {
+    public StoreDetailMessage.Response getStore(Long storeId) {
 
         StoreEntity store = storeRepository.findByStoreId(storeId)
                 .orElseThrow(() -> new RuntimeException("등록되지 않은 매장 ID 입니다"));
 
         StoreDto storeDto = StoreDto.fromEntity(store);
 
-        return StoreSearch.StoreDetailResponse.from(storeDto);
+        return StoreDetailMessage.Response.from(storeDto);
     }
 
     @Override
@@ -150,7 +187,6 @@ public class StoreServiceImpl implements StoreService {
 
     private boolean isValidOwner(StoreEntity store, MemberEntity member) {
 
-        System.out.println(store.getUsername().getUsername() + " " + member.getUsername());
         if (!store.getUsername().getUsername().equals(member.getUsername())) return false;
 
         return true;

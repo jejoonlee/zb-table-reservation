@@ -2,8 +2,8 @@ package com.zerobase.tablereservation.store.controller;
 
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.store.dto.StoreCancelReserve;
-import com.zerobase.tablereservation.store.dto.StoreRegister;
-import com.zerobase.tablereservation.store.dto.StoreSearch;
+import com.zerobase.tablereservation.store.dto.StoreMessage;
+import com.zerobase.tablereservation.store.dto.StoreDetailMessage;
 import com.zerobase.tablereservation.store.service.impl.StoreServiceImpl;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +33,8 @@ public class StoreController {
     // http://localhost:8080/store/register
     @PostMapping("/register")
     @PreAuthorize("hasRole('STORE_OWNER')")
-    public StoreRegister.Response registerStore(
-            @RequestBody StoreRegister.Request request,
+    public StoreMessage.Response registerStore(
+            @RequestBody StoreMessage.Request request,
             Authentication authentication
     ) {
 
@@ -42,6 +42,47 @@ public class StoreController {
 
         return storeServiceImpl.registerStore(request, member);
     }
+
+    // http://localhost:8080/store/all
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('STORE_OWNER')")
+    public List<StoreMessage.Response> getAllRegisteredStores(
+        Authentication authentication
+    ) {
+
+        MemberEntity member = authenticate(authentication);
+
+        return storeServiceImpl.getAllRegisteredStores(member);
+    }
+
+    // http://localhost:8080/store/update
+    @PutMapping ("/update")
+    @PreAuthorize("hasRole('STORE_OWNER')")
+    public StoreMessage.Response updateStore (
+            @RequestBody StoreMessage.UpdateRequest request,
+            Authentication authentication
+    ) {
+
+        MemberEntity member = authenticate(authentication);
+
+        return storeServiceImpl.updateStore(request, member);
+    }
+
+
+    // http://localhost:8080/store/delete
+    @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('STORE_OWNER')")
+    public String deleteStore(
+            Authentication authentication
+    ){
+
+
+        return null;
+    }
+
+
+
+    // ================= 매장 예약 관련 ========================
 
     // http://localhost:8080/store/reservations?storeId={storeId}
     @GetMapping("/reservations")
@@ -79,7 +120,7 @@ public class StoreController {
 
     // http://localhost:8080/store?storeId={storeId}
     @GetMapping()
-    public StoreSearch.StoreDetailResponse getStore(
+    public StoreDetailMessage.Response getStore(
         @RequestParam Long storeId
     ){
         return storeServiceImpl.getStore(storeId);

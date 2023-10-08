@@ -4,7 +4,7 @@ import com.sun.istack.NotNull;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
 import lombok.*;
 
-public class StoreRegister {
+public class StoreMessage {
 
     @Getter
     @Setter
@@ -46,6 +46,31 @@ public class StoreRegister {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class UpdateRequest {
+        @NotNull
+        private Long storeNum;
+        @NotNull
+        private String storeName;
+        @NotNull
+        private String address1;
+        @NotNull
+        private String address2;
+        @NotNull
+        private String detail;
+        @NotNull
+        private String openTime;
+        @NotNull
+        private String lastReserveTime;
+        private String breakStart;
+        private String breakFinish;
+
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Response {
         private String storeName;
         private String address1;
@@ -53,9 +78,18 @@ public class StoreRegister {
         private String detail;
         private String openTime;
         private String lastReserveTime;
+        private String breakTime;
 
 
-        public static StoreRegister.Response from(StoreDto storeDto) {
+        public static StoreMessage.Response fromDto(StoreDto storeDto) {
+            String breakTime;
+
+            if (storeDto.getBreakStart() == null) {
+                breakTime = "없음";
+            } else {
+                breakTime = storeDto.getBreakStart() + " ~ " + storeDto.getBreakFinish();
+            }
+
             return Response.builder()
                     .storeName(storeDto.getStoreName())
                     .address1(storeDto.getAddress1())
@@ -63,6 +97,7 @@ public class StoreRegister {
                     .detail(storeDto.getDetail())
                     .openTime(storeDto.getOpenTime())
                     .lastReserveTime(storeDto.getLastReserveTime())
+                    .breakTime(breakTime)
                     .build();
         }
 

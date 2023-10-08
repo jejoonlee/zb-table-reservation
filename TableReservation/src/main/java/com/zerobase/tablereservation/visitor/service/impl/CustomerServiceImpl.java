@@ -32,6 +32,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final MemberRepository memberRepository;
 
     private String DELETE_MESSAGE_SUCCESS = "성공적으로 예약을 삭제했습니다";
+    private String DELETE_REVIEW_MESSAGE_SUCCESS = "리뷰가 삭제되었습니다";
 
     @Override
     public ReservationMessage.Response makeReservation(ReservationMessage.Request request, MemberEntity member) {
@@ -175,6 +176,24 @@ public class CustomerServiceImpl implements CustomerService {
         reserveRepository.save(reserve);
 
         return ReviewMessage.Response.fromDto(ReserveDto.fromEntity(reserve));
+    }
+
+    // 메서드 이름만 delete이지 사실상 review를 null로 바꾸는 것
+    @Override
+    public String deleteReview(Long reserveNum, MemberEntity member) {
+
+        // 예약 entity 가지고 오기
+        ReserveEntity reserve = reserveRepository.findById(reserveNum)
+                .orElseThrow(() -> new RuntimeException("해당 예약 내역이 존재하지 않습니다"));
+
+        // 삭제할 리뷰에 대한 예약 내역의 사람이, 로그인한 사람과 일치하는가?
+        if (!validUserForReserve(reserve, member))
+            throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
+
+        reserve.setReview(null);
+        reserveRepository.save(reserve);
+
+        return DELETE_REVIEW_MESSAGE_SUCCESS;
     }
 
     private boolean validTime(LocalDateTime reserveDate, String openTime, String lastReserve, String breakStart, String breakEnd) {

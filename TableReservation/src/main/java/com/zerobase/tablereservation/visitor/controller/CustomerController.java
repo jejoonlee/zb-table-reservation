@@ -118,7 +118,8 @@ public class CustomerController {
         return customerService.updateReview(request, member);
     }
 
-    // http://localhost:8080/customer/review/delete
+    // http://localhost:8080/customer/review/delete?reserveNum={reserveNum}
+    // 리뷰 내용을 null로 바꾸는 것 밖에 없음 (삭제하는 것은 아님)
     @DeleteMapping("/review/delete")
     @PreAuthorize("hasRole('STORE_USER')")
     public String deleteReview(
@@ -128,7 +129,7 @@ public class CustomerController {
 
         MemberEntity member = authenticate(authentication);
 
-        return null;
+        return customerService.deleteReview(reserveNum, member);
     }
 
 

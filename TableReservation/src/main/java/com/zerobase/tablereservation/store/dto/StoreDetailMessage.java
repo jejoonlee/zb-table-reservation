@@ -3,14 +3,14 @@ package com.zerobase.tablereservation.store.dto;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import lombok.*;
 
-public class StoreSearch {
+public class StoreDetailMessage {
 
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class StoreDetailResponse {
+    public static class Response {
 
         private String storeName;
         private String ownerName;
@@ -22,12 +22,12 @@ public class StoreSearch {
         private String breakStart;
         private String breakFinish;
 
-        public static StoreSearch.StoreDetailResponse from(StoreDto storeDto) {
+        public static Response from(StoreDto storeDto) {
 
             MemberEntity member = storeDto.getUsername();
             String owner = member.getUsername();
 
-            return StoreDetailResponse.builder()
+            return Response.builder()
                     .storeName(storeDto.getStoreName())
                     .ownerName(owner)
                     .address1(storeDto.getAddress1())
