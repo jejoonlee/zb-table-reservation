@@ -1,9 +1,11 @@
 package com.zerobase.tablereservation.store.controller;
 
+import com.zerobase.tablereservation.exception.ErrorCode;
+import com.zerobase.tablereservation.exception.MemberException;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.store.dto.StoreCancelReserve;
-import com.zerobase.tablereservation.store.dto.StoreMessage;
 import com.zerobase.tablereservation.store.dto.StoreDetailMessage;
+import com.zerobase.tablereservation.store.dto.StoreMessage;
 import com.zerobase.tablereservation.store.service.impl.StoreServiceImpl;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,7 +27,7 @@ public class StoreController {
 
     private MemberEntity authenticate(Authentication authentication) {
         if (!authentication.isAuthenticated()) {
-            throw new RuntimeException("로그인이 제대로 안 되어 있습니다");
+            throw new MemberException(ErrorCode.USER_NOT_LOGGED_IN);
         }
 
         return (MemberEntity) authentication.getPrincipal();
@@ -34,7 +37,7 @@ public class StoreController {
     @PostMapping("/register")
     @PreAuthorize("hasRole('STORE_OWNER')")
     public StoreMessage.Response registerStore(
-            @RequestBody StoreMessage.Request request,
+            @RequestBody @Valid StoreMessage.Request request,
             Authentication authentication
     ) {
 
@@ -59,7 +62,7 @@ public class StoreController {
     @PutMapping ("/update")
     @PreAuthorize("hasRole('STORE_OWNER')")
     public StoreMessage.Response updateStore (
-            @RequestBody StoreMessage.UpdateRequest request,
+            @RequestBody @Valid StoreMessage.UpdateRequest request,
             Authentication authentication
     ) {
 
@@ -69,15 +72,17 @@ public class StoreController {
     }
 
 
-    // http://localhost:8080/store/delete
+    // http://localhost:8080/store/delete?storeNum={storeNumber}
     @DeleteMapping("/delete")
     @PreAuthorize("hasRole('STORE_OWNER')")
     public String deleteStore(
+            @RequestParam Long storeNum,
             Authentication authentication
     ){
 
+        MemberEntity member = authenticate(authentication);
 
-        return null;
+        return storeServiceImpl.deleteStore(storeNum, member);
     }
 
 
@@ -100,7 +105,7 @@ public class StoreController {
     @PostMapping("/cancel-reservation")
     @PreAuthorize("hasRole('STORE_OWNER')")
     public String cancelReservation(
-            @RequestBody StoreCancelReserve.Request request,
+            @RequestBody @Valid StoreCancelReserve.Request request,
             Authentication authentication
             ) {
 

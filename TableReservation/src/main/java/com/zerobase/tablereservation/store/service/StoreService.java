@@ -17,6 +17,8 @@ public interface StoreService {
 
     StoreMessage.Response updateStore(StoreMessage.UpdateRequest request, MemberEntity member);
 
+    String deleteStore(Long storeNum, MemberEntity member);
+
     List<ReserveRecord.Response> getAllReservations(Long storeId, MemberEntity member);
 
     String cancelReservation(StoreCancelReserve.Request request, MemberEntity member);

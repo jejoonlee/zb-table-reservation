@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class MemberController {
     // 회원가입
     @PostMapping("/register")
     public MemberRegister.Response register(
-            @RequestBody MemberRegister.Request request
+            @RequestBody @Valid MemberRegister.Request request
             ) {
 
         MemberRegister.Response memberRegisterResponse = memberServiceImpl.register(request);
@@ -31,7 +33,7 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody Login.Request request) {
+    public String login(@RequestBody @Valid Login.Request request) {
         Login.Response response = memberServiceImpl.login(request);
 
         return "토큰이 생성이 되었습니다\n" + tokenProvider.generateToken(response.getUsername(), response.getOwnerOrCustomer());

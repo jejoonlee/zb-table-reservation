@@ -1,7 +1,8 @@
 package com.zerobase.tablereservation.visitor.dto;
 
-import com.sun.istack.NotNull;
 import lombok.*;
+
+import javax.validation.constraints.NotBlank;
 
 public class ReviewMessage {
 
@@ -12,10 +13,10 @@ public class ReviewMessage {
     @NoArgsConstructor
     public static class Request {
 
-        @NotNull
+        @NotBlank(message="예약 번호는 필수 입력 사항입니다. 예약 내역에 예약 번호를 확인하실 수 있습니다.")
         private Long reservationId;
 
-        @NotNull
+        @NotBlank(message="리뷰를 입력해주셔야 합니다")
         private String review;
 
     }

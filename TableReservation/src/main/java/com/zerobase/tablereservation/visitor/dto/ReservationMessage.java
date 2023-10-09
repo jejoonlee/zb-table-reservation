@@ -1,10 +1,10 @@
 package com.zerobase.tablereservation.visitor.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sun.istack.NotNull;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 public class ReservationMessage {
@@ -17,12 +17,12 @@ public class ReservationMessage {
     @NoArgsConstructor
     public static class Request {
         // 매장을 찾고, 로그인 상태에서 예약 시간을 저장하면 됨
-        @NotNull
+        @Positive(message="매장 번호는 필수 입력 사항입니다. 매장 상세 정보에서 확인하실 수 있습니다")
         private Long storeId;
-        @NotNull
+
+        @Positive(message="인원 수를 꼭 입력해주세요")
         private Long peopleNum;
 
-        @NotNull
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm")
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern ="yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
         private LocalDateTime reserveDate;
@@ -35,19 +35,20 @@ public class ReservationMessage {
     @NoArgsConstructor
     public static class RequestUpdate {
 
-        @NotNull
+        @Positive(message="예약 번호는 필수 입력 사항입니다. 예약 내역에 예약 번호를 확인하실 수 있습니다.")
         private Long reservationNum;
 
-        @NotNull
+        @Positive(message="매장 번호는 필수 입력 사항입니다. 매장 상세 정보에서 확인하실 수 있습니다")
         private Long storeId;
 
-        @NotNull
+        @Positive(message="인원 수를 꼭 입력해주세요")
         private Long peopleNum;
 
-        @NotNull
-        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm")
-        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern ="yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
+
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
         private LocalDateTime reserveDate;
+
     }
 
     @Getter

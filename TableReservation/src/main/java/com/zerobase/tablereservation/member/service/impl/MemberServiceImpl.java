@@ -1,11 +1,12 @@
 package com.zerobase.tablereservation.member.service.impl;
 
+import com.zerobase.tablereservation.exception.ErrorCode;
+import com.zerobase.tablereservation.exception.MemberException;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.member.dto.Login;
 import com.zerobase.tablereservation.member.dto.MemberDto;
 import com.zerobase.tablereservation.member.dto.MemberRegister;
 import com.zerobase.tablereservation.member.repository.MemberRepository;
-import com.zerobase.tablereservation.member.security.TokenProvider;
 import com.zerobase.tablereservation.member.service.MemberService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +29,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         if (result.equals("0")) return "ROLE_STORE_OWNER";
         if (result.equals("1")) return "ROLE_STORE_USER";
 
-        throw new RuntimeException("0 또는 1을 입력해주세요.\n0 = 매장 운영자\n1 = 매장 이용자");
+        throw new MemberException(ErrorCode.UNSUCCESSFUL_ROLE_INPUT);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
 
 
         if (memberExist) {
-            throw new RuntimeException("유저가 이미 존재합니다");
+            throw new MemberException(ErrorCode.EXISTING_USER);
         }
 
         List<String> role = new ArrayList<>();
@@ -60,13 +61,13 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Override
     public Login.Response login(Login.Request request) {
         MemberEntity user = memberRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
 
         // user에 들어간 비밀번호는 encoding이 되어 있다
         // encoding된 비밀번호를 먼저 확인
         // 다르면 예외발생
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다");
+            throw new MemberException(ErrorCode.UNMATCHING_PASSWORD);
         }
 
         return Login.Response.from(MemberDto.fromEntity(user));
@@ -75,6 +76,6 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return this.memberRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다"));
+                .orElseThrow(() -> new MemberException(ErrorCode.USER_NOT_FOUND));
     }
 }

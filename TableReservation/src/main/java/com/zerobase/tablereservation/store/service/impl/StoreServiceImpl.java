@@ -1,5 +1,8 @@
 package com.zerobase.tablereservation.store.service.impl;
 
+import com.zerobase.tablereservation.exception.ErrorCode;
+import com.zerobase.tablereservation.exception.ReserveException;
+import com.zerobase.tablereservation.exception.StoreException;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.member.repository.MemberRepository;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
@@ -35,6 +38,7 @@ public class StoreServiceImpl implements StoreService {
     private final ReserveRepository reserveRepository;
 
     private String CANCEL_SUCCESS_MESSAGE = "예약 내역을 성공적으로 삭제했습니다";
+    private String DELETE_STORE_SUCCESS = "매장을 성공적으로 삭제했습니다";
 
     @Override
     public StoreMessage.Response registerStore(StoreMessage.Request request, MemberEntity member) {
@@ -68,10 +72,24 @@ public class StoreServiceImpl implements StoreService {
     public StoreMessage.Response updateStore(StoreMessage.UpdateRequest request, MemberEntity member) {
 
         StoreEntity store = storeRepository.findByStoreId(request.getStoreNum())
-                .orElseThrow(() -> new RuntimeException("등록되지 않은 매장 ID 입니다"));
+                .orElseThrow(() -> new StoreException(ErrorCode.STORE_NOT_FOUND));
 
         if (!isValidOwner(store, member))
-            throw new RuntimeException("매장 점주와, 로그인한 유저 정보가 일치해야 합니다");
+            throw new StoreException(ErrorCode.UNMATCHING_USER_AND_STORE_OWNER);
+
+        String breakStart;
+        String breakFinish;
+
+        if (request.getBreakStart().equals("없음")) {
+            breakStart = null;
+        } else {
+            breakStart = request.getBreakStart();
+        }
+        if (request.getBreakFinish().equals("없음")) {
+            breakFinish = null;
+        } else {
+            breakFinish = request.getBreakFinish();
+        }
 
         store.setStoreName(request.getStoreName());
         store.setAddress1(request.getAddress1());
@@ -88,15 +106,31 @@ public class StoreServiceImpl implements StoreService {
         return StoreMessage.Response.fromDto(StoreDto.fromEntity(store));
     }
 
+    @Override
+    public String deleteStore(Long storeNum, MemberEntity member) {
+
+        StoreEntity store = storeRepository.findByStoreId(storeNum)
+                .orElseThrow(() -> new StoreException(ErrorCode.STORE_NOT_FOUND));
+
+        if (!isValidOwner(store, member))
+            throw new StoreException(ErrorCode.UNMATCHING_USER_AND_STORE_OWNER);
+
+        // 해당 매장에 대한 모든 예약들을 삭제하고난 후에, 매장을 삭제한다
+        reserveRepository.deleteAllByStoreEntity(store);
+        storeRepository.delete(store);
+
+        return DELETE_STORE_SUCCESS;
+    }
+
 
     @Override
     public List<ReserveRecord.Response> getAllReservations(Long storeId, MemberEntity member) {
 
         StoreEntity store = storeRepository.findByStoreId(storeId)
-                .orElseThrow(() -> new RuntimeException("등록되지 않은 매장 ID 입니다"));
+                .orElseThrow(() -> new StoreException(ErrorCode.STORE_NOT_FOUND));
 
         // 입력한 상점이, 로그인한 주인이 등록한 상점인지 확인하기
-        if (!isValidOwner(store, member)) throw new RuntimeException("매장 점주와, 로그인한 유저 정보가 일치해야 합니다");
+        if (!isValidOwner(store, member)) throw new StoreException(ErrorCode.UNMATCHING_USER_AND_STORE_OWNER);
 
 
         // 맞으면 해당 상점에 대한 모든 예약 내역 받아오기 (오름차순 + 예약 상태 Before만)
@@ -113,20 +147,19 @@ public class StoreServiceImpl implements StoreService {
 
         // 예약이 존재하는지 확인
         ReserveEntity reserve = reserveRepository.findById(request.getReservationId())
-                .orElseThrow(() -> new RuntimeException("입력한 예약이 없습니다"));
+                .orElseThrow(() -> new ReserveException(ErrorCode.RESERVATION_NOT_FOUND));
 
         // 예약 내역에 저장된 매장의 주인 정보와, 로그인한 주인 정보가 일치하는지 확인
-        if (!reserve.getStoreEntity().getUsername().getUsername().equals(member.getUsername()))
-            throw new RuntimeException("매장을 등록한 유저와, 로그인 유저가 일치하지 않습니다");
+        if (!isValidOwner(reserve.getStoreEntity(), member)) throw new StoreException(ErrorCode.UNMATCHING_USER_AND_STORE_OWNER);
 
         // 예약의 시간이 이미 지났거나, 예약 사용 후거나 취소가 된 상태면 예약을 취소할 수 없다
         if (!isValidReserve(reserve))
-            throw new RuntimeException("이미 취소가 되었거나, 사용이 된 예약입니다");
+            throw new ReserveException(ErrorCode.CANCELED_OR_ALREADY_USED_RESERVATION);
 
         // request로 받아온 매장 주인이 입력한 예약자의 이름과, 예약자의 이름이 일치하는지 확인
         // 엉뚱한 예약 내역을 삭제하면 안 되니깐, 최대한 정확히 확인을 한다
         if (!request.getUsername().equals(reserve.getMemberEntity().getUsername()))
-            throw new RuntimeException("입력한 예약자의 이름과 예약 내역의 유저 이름이 일치하지 않습니다");
+            throw new ReserveException(ErrorCode.UNMATCHING_REQUESTED_USER_AND_RESERVATION);
 
         reserve.setServiceUse(ServiceUseStatus.CANCEL_BY_OWNER);
         reserveRepository.save(reserve);
@@ -138,7 +171,7 @@ public class StoreServiceImpl implements StoreService {
     public StoreDetailMessage.Response getStore(Long storeId) {
 
         StoreEntity store = storeRepository.findByStoreId(storeId)
-                .orElseThrow(() -> new RuntimeException("등록되지 않은 매장 ID 입니다"));
+                .orElseThrow(() -> new StoreException(ErrorCode.STORE_NOT_FOUND));
 
         StoreDto storeDto = StoreDto.fromEntity(store);
 
@@ -151,7 +184,7 @@ public class StoreServiceImpl implements StoreService {
         List<StoreEntity> stores = storeRepository
                 .findAllByStoreNameStartingWithIgnoreCase(keyword);
 
-        if (stores.size() == 0) throw new RuntimeException("검색한 키워드에 대한 정보가 없습니다");
+        if (stores.size() == 0) throw new StoreException(ErrorCode.KEYWORD_NOT_FOUND);
 
         List<HashMap<String, String>> result = new ArrayList<>();
 

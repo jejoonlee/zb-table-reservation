@@ -1,5 +1,8 @@
 package com.zerobase.tablereservation.visitor.service.impl;
 
+import com.zerobase.tablereservation.exception.ErrorCode;
+import com.zerobase.tablereservation.exception.ReserveException;
+import com.zerobase.tablereservation.exception.StoreException;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.member.repository.MemberRepository;
 import com.zerobase.tablereservation.store.domain.StoreEntity;
@@ -38,15 +41,13 @@ public class CustomerServiceImpl implements CustomerService {
     public ReservationMessage.Response makeReservation(ReservationMessage.Request request, MemberEntity member) {
 
         StoreEntity store = storeRepository.findByStoreId(request.getStoreId())
-                .orElseThrow(() -> new RuntimeException("없는 상점입니다"));
+                .orElseThrow(() -> new StoreException(ErrorCode.STORE_NOT_FOUND));
 
         // 해당 상점이 여는 시간에 예약을 했는지 확인한다
         LocalDateTime reserveDate = request.getReserveDate();
 
         if (!validTime(reserveDate, store.getOpenTime(), store.getLastReserveTime(), store.getBreakStart(), store.getBreakEnd())) {
-            throw new RuntimeException("예약을 할 수 없는 시간입니다");
-        } else {
-            System.out.println(reserveDate + "날짜 저장");
+            throw new ReserveException(ErrorCode.INVALID_RESERVE_TIME);
         }
 
         ReserveEntity reserve = ReserveEntity.builder()
@@ -82,23 +83,23 @@ public class CustomerServiceImpl implements CustomerService {
     public ReservationMessage.Response updateReservation(ReservationMessage.RequestUpdate request, MemberEntity member) {
         // 유효한 예약 내역인지 확인한다
         ReserveEntity reserve = reserveRepository.findById(request.getReservationNum())
-                .orElseThrow(() -> new RuntimeException("해당 예약 내역이 존재하지 않습니다"));
+                .orElseThrow(() -> new StoreException(ErrorCode.RESERVATION_NOT_FOUND));
 
         // 예약 내역이 로그인 한 유저가 작성한 것인지 확인
         if (!validUserForReserve(reserve, member))
-            throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
+            throw new ReserveException(ErrorCode.UNMATCHING_USER_AND_RESERVATION);
 
         // 매장이 유효한지 확인
         StoreEntity store = storeRepository.findByStoreId(request.getStoreId())
-                .orElseThrow(() -> new RuntimeException("찾는 매장이 저장되어 있지 않습니다"));
+                .orElseThrow(() -> new StoreException(ErrorCode.STORE_NOT_FOUND));
 
         // SERVICE_USE가 BEFORE인지 확인 (BEFORE에만 수정 가능)
         if (reserve.getServiceUse() != ServiceUseStatus.BEFORE)
-            throw new RuntimeException("예약이 이용이 유효한 상태만 수정이 가능합니다");
+            throw new ReserveException(ErrorCode.CANCELED_OR_ALREADY_USED_RESERVATION);
 
         // 바꾼 예약 시간이 유효한지 확인
         if (!validTime(request.getReserveDate(), store.getOpenTime(), store.getLastReserveTime(), store.getBreakStart(), store.getBreakEnd()))
-            throw new RuntimeException("해당 시간으로 예약이 불가합니다");
+            throw new ReserveException(ErrorCode.INVALID_RESERVE_TIME);
 
         reserve.setStoreEntity(store);
         reserve.setReserveDate(request.getReserveDate());
@@ -113,11 +114,11 @@ public class CustomerServiceImpl implements CustomerService {
 
         // 예약 entity 가지고 오기
         ReserveEntity reserve = reserveRepository.findById(reserveNum)
-                .orElseThrow(() -> new RuntimeException("해당 예약 내역이 존재하지 않습니다"));
+                .orElseThrow(() -> new ReserveException(ErrorCode.RESERVATION_NOT_FOUND));
 
         // 예약 내역을 삭제하려는 로그인한 유저가, 작성한 예약 내역인가?
         if (!validUserForReserve(reserve, member))
-            throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
+            throw new ReserveException(ErrorCode.UNMATCHING_USER_AND_RESERVATION);
 
         reserveRepository.delete(reserve);
 
@@ -129,14 +130,14 @@ public class CustomerServiceImpl implements CustomerService {
 
         // request에 있는 예약 번호를 통해서 예약 엔티티를 찾는다
         ReserveEntity reserve = reserveRepository.findById(request.getReservationId())
-                .orElseThrow(() -> new RuntimeException("해당 예약 번호를 찾을 수 없습니다"));
+                .orElseThrow(() -> new ReserveException(ErrorCode.RESERVATION_NOT_FOUND));
 
         // 리뷰를 작성할 수 있는지 확인한다
         validReviewCheck(reserve, member);
 
         // 리뷰가 작성이 되어 있으면, 다시 작성을 못 하게 한다
         if (reserve.getReview() != null)
-            throw new RuntimeException("이미 리뷰를 작성했습니다. 수정 페이지에서 리뷰를 수정해주세요.");
+            throw new ReserveException(ErrorCode.ALREADY_WRITTEN_REVIEW);
 
         reserve.setReview(request.getReview());
         reserveRepository.save(reserve);
@@ -163,14 +164,14 @@ public class CustomerServiceImpl implements CustomerService {
 
         // request에 있는 예약 번호를 통해서 예약 엔티티를 찾는다
         ReserveEntity reserve = reserveRepository.findById(request.getReservationId())
-                .orElseThrow(() -> new RuntimeException("해당 예약 번호를 찾을 수 없습니다"));
+                .orElseThrow(() -> new ReserveException(ErrorCode.RESERVATION_NOT_FOUND));
 
         // 리뷰를 작성할 수 있는지 확인한다
         validReviewCheck(reserve, member);
 
         // 리뷰가 작성이 되어 있어야, 리뷰를 수정할 수 있도록 한다
         if (reserve.getReview() == null)
-            throw new RuntimeException("리뷰를 수정하기 위해서는, 리뷰가 작성이 되어 있어야 합니다");
+            throw new ReserveException(ErrorCode.NULL_REVIEW);
 
         reserve.setReview(request.getReview());
         reserveRepository.save(reserve);
@@ -184,11 +185,11 @@ public class CustomerServiceImpl implements CustomerService {
 
         // 예약 entity 가지고 오기
         ReserveEntity reserve = reserveRepository.findById(reserveNum)
-                .orElseThrow(() -> new RuntimeException("해당 예약 내역이 존재하지 않습니다"));
+                .orElseThrow(() -> new ReserveException(ErrorCode.RESERVATION_NOT_FOUND));
 
         // 삭제할 리뷰에 대한 예약 내역의 사람이, 로그인한 사람과 일치하는가?
         if (!validUserForReserve(reserve, member))
-            throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
+            throw new ReserveException(ErrorCode.UNMATCHING_USER_AND_RESERVATION);
 
         reserve.setReview(null);
         reserveRepository.save(reserve);
@@ -272,11 +273,11 @@ public class CustomerServiceImpl implements CustomerService {
 
         // 예약을 한 유저와, 로그한 유저가 일치한지 확인한다
         if (!validUserForReserve(reserve, member))
-            throw new RuntimeException("예약한 유저와 로그인한 유저가 같아야 합니다");
+            throw new ReserveException(ErrorCode.UNMATCHING_USER_AND_RESERVATION);
 
         // 예약의 SERVICE_USE가 BEFORE 또는 USED일 때에만 review를 쓸 수 있다
         if (reserve.getServiceUse() != ServiceUseStatus.USED)
-            throw new RuntimeException("예약을 하고, 매장을 이용해야 리뷰를 작성하실 수 있습니다");
+            throw new ReserveException(ErrorCode.INVALID_CONDITION_TO_WRITE_REVIEW);
     }
 
 }

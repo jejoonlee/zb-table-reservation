@@ -5,6 +5,7 @@ import com.zerobase.tablereservation.store.domain.StoreEntity;
 import com.zerobase.tablereservation.visitor.domain.ReserveEntity;
 import com.zerobase.tablereservation.visitor.domain.ServiceUseStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,5 +18,8 @@ public interface ReserveRepository extends JpaRepository<ReserveEntity, Long> {
     List<ReserveEntity> findAllByStoreEntityAndServiceUseOrderByReserveDateDesc(StoreEntity store, ServiceUseStatus serviceUseStatus);
 
     List<ReserveEntity> findAllByMemberEntityAndReviewIsNotNull(MemberEntity member);
+
+    @Transactional
+    void deleteAllByStoreEntity(StoreEntity store);
 
 }

@@ -1,8 +1,8 @@
 package com.zerobase.tablereservation.member.dto;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 public class Login {
@@ -11,9 +11,9 @@ public class Login {
     @Setter
     @AllArgsConstructor
     public static class Request {
-        @NotNull
+        @NotBlank(message="ID는 필수 입력 사항입니다")
         private String username;
-        @NotNull
+        @NotBlank(message="비밀번호는 필수 입력 사항입니다")
         private String password;
     }
 

@@ -1,5 +1,7 @@
 package com.zerobase.tablereservation.visitor.controller;
 
+import com.zerobase.tablereservation.exception.ErrorCode;
+import com.zerobase.tablereservation.exception.MemberException;
 import com.zerobase.tablereservation.member.domain.MemberEntity;
 import com.zerobase.tablereservation.visitor.dto.ReservationMessage;
 import com.zerobase.tablereservation.visitor.dto.ReserveRecord;
@@ -10,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -21,7 +24,7 @@ public class CustomerController {
 
     private MemberEntity authenticate(Authentication authentication) {
         if (!authentication.isAuthenticated()) {
-            throw new RuntimeException("로그인이 제대로 안 되어 있습니다");
+            throw new MemberException(ErrorCode.USER_NOT_LOGGED_IN);
         }
 
         return (MemberEntity) authentication.getPrincipal();
@@ -31,7 +34,7 @@ public class CustomerController {
     @PostMapping("/reserve")
     @PreAuthorize("hasRole('STORE_USER')")
     public ReservationMessage.Response reserve(
-            @RequestBody ReservationMessage.Request request,
+            @RequestBody @Valid ReservationMessage.Request request,
             Authentication authentication
     ) {
 
@@ -56,7 +59,7 @@ public class CustomerController {
     @PutMapping("/reserve/update")
     @PreAuthorize("hasRole('STORE_USER')")
     public ReservationMessage.Response reserveUpdate(
-            @RequestBody ReservationMessage.RequestUpdate request,
+            @RequestBody @Valid ReservationMessage.RequestUpdate request,
         Authentication authentication
     ) {
 
@@ -83,7 +86,7 @@ public class CustomerController {
     @PostMapping("/review/write")
     @PreAuthorize("hasRole('STORE_USER')")
     public ReviewMessage.Response writeReview (
-            @RequestBody ReviewMessage.Request request,
+            @RequestBody @Valid ReviewMessage.Request request,
             Authentication authentication
     ) {
 
@@ -110,7 +113,7 @@ public class CustomerController {
     @PostMapping("/review/update")
     @PreAuthorize("hasRole('STORE_USER')")
     public ReviewMessage.Response updateReview(
-        @RequestBody ReviewMessage.Request request,
+        @RequestBody @Valid ReviewMessage.Request request,
         Authentication authentication
     ){
         MemberEntity member = authenticate(authentication);
