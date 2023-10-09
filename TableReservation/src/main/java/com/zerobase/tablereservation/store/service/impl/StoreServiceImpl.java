@@ -45,6 +45,22 @@ public class StoreServiceImpl implements StoreService {
 
         StoreEntity storeEntity = request.toEntity();
 
+        String breakStart;
+        String breakFinish;
+
+        if (request.getBreakStart().equals("없음")) {
+            breakStart = null;
+        } else {
+            breakStart = request.getBreakStart();
+        }
+        if (request.getBreakFinish().equals("없음")) {
+            breakFinish = null;
+        } else {
+            breakFinish = request.getBreakFinish();
+        }
+
+        storeEntity.setBreakStart(breakStart);
+        storeEntity.setBreakEnd(breakFinish);
         storeEntity.setUsername(member);
         storeEntity.setRegisteredAt(LocalDateTime.now());
 
@@ -97,8 +113,8 @@ public class StoreServiceImpl implements StoreService {
         store.setDetail(request.getDetail());
         store.setOpenTime(request.getOpenTime());
         store.setLastReserveTime(request.getLastReserveTime());
-        store.setBreakStart(request.getBreakStart());
-        store.setBreakEnd(request.getBreakFinish());
+        store.setBreakStart(breakStart);
+        store.setBreakEnd(breakFinish);
         store.setUpdatedAt(LocalDateTime.now());
 
         storeRepository.save(store);
