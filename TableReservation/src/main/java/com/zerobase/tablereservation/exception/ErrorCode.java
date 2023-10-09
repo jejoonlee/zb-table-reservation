@@ -12,9 +12,10 @@ public enum ErrorCode {
     NO_INPUT("빈칸 값이 있습니다"),
     WRONG_DATE_INPUT("날짜 입력을 잘 못 했습니다"),
     WRONG_INPUT_REQUEST("입력값을 제대로 입력하지 않았습니다. 다시 확인해주세요"),
+    JWT_SHOULD_NOT_BE_TRUSTED("JWT 토큰의 유효성이 확인이 안 됩니다. 다시 입력해주세요"),
 
 //    유저 관련 에러 코드
-    USER_PERMISSION_NOT_GRANTED("해당 요청에 대한 권한이 없습니다"),
+    USER_PERMISSION_NOT_GRANTED("해당 요청에 대한 권한이 없습니다. JWT 토큰을 헤더에 추가하거나, 다른 로그인 정보로 로그인해주세요"),
     USER_NOT_LOGGED_IN("로그인이 제대로 안 되어 있습니다"),
     USER_NOT_FOUND("해당 유저에 대한 정보가 없습니다"),
     UNSUCCESSFUL_ROLE_INPUT("0 또는 1을 입력해주세요.\n0 = 매장 운영자\n1 = 매장 이용자"),

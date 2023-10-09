@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import io.jsonwebtoken.SignatureException;
 
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
@@ -94,6 +95,15 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(HttpStatus.BAD_REQUEST,
                 ErrorCode.WRONG_DATE_INPUT,
                 ErrorCode.WRONG_DATE_INPUT.getDescription() + " " + e.getMessage());
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    public ErrorResponse handleSignatureException(SignatureException e) {
+        log.error("SignatureException has occured : " + e.getMessage());
+
+        return new ErrorResponse(HttpStatus.BAD_GATEWAY,
+                ErrorCode.JWT_SHOULD_NOT_BE_TRUSTED,
+                ErrorCode.JWT_SHOULD_NOT_BE_TRUSTED.getDescription());
     }
 
     @ExceptionHandler(Exception.class)
