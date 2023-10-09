@@ -100,6 +100,14 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleException(Exception e) {
         log.error("Exception has occurred: " + e.getMessage(), e);
 
+        if (e.getMessage().split(":")[0].equals("JSON parse error")) {
+            log.error(e.getMessage());
+
+            return new ErrorResponse(HttpStatus.BAD_REQUEST,
+                    ErrorCode.WRONG_INPUT_REQUEST,
+                    ErrorCode.WRONG_INPUT_REQUEST.getDescription());
+        }
+
         return new ErrorResponse(HttpStatus.BAD_REQUEST,
                 INTERNAL_SERVER_ERROR,
                 INTERNAL_SERVER_ERROR.getDescription());

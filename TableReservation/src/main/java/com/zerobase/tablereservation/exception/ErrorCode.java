@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_REQUEST("잘 못된 요청입니다"),
     NO_INPUT("빈칸 값이 있습니다"),
     WRONG_DATE_INPUT("날짜 입력을 잘 못 했습니다"),
+    WRONG_INPUT_REQUEST("입력값을 제대로 입력하지 않았습니다. 다시 확인해주세요"),
 
 //    유저 관련 에러 코드
     USER_PERMISSION_NOT_GRANTED("해당 요청에 대한 권한이 없습니다"),
